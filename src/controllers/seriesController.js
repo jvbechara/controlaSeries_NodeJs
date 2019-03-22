@@ -3,30 +3,25 @@ const Series = mongoose.model('Series');
 
 const getSeries = async(req, res, next) => {
     const {page = 1} = req.query;
-    const series = await Series.paginate({}, {page, limit: 5});
+    const series = await Series.paginate({}, {page, limit:6, sort: 'title'});
     return res.json(series);
 }
 
 const getSerie = async(req, res) => {
+    //test = Series.title;
     const serie = await Series.findById(req.params.id);
     return res.json(serie);
 }
 
 const getSeriesByStatus = async(req, res, next) => {
-    //["MinhaLista", "EmAndamento", "Assistidas"]
-    // switch(req.params.status){
-    //     case 'MinhaLista' :
-    //     var status = 0;
-    //     break;
-    //     case 'EmAndamento' :
-    //     var status = 1;
-    //     break;
-    //     case 'Assistidas' :
-    //     var status = 2;
-    //     break;
-    // }
     const {page = 1} = req.query;
-    const series = await Series.paginate({status: req.params.status}, {page, limit:5});
+    const series = await Series.paginate({status: req.params.status}, {sort: 'title'},{page, limit:5});
+    return res.json(series);
+}
+
+const getSeriesBySubstring = async(req, res, next) => {
+    const searchText = req.params.title;
+    const series = await Series.paginate({ "title": { "$regex": searchText, "$options": "i" } }, function(err,docs) {})
     return res.json(series);
 }
 
@@ -49,6 +44,7 @@ module.exports = {
     getSeries,
     getSerie,
     getSeriesByStatus,
+    getSeriesBySubstring,
     post,
     update,
     destroy
