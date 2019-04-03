@@ -1,43 +1,97 @@
 const mongoose = require('mongoose');
 const Series = mongoose.model('Series');
+const auth = require('../services/auth');
 
-const getSeries = async(req, res, next) => {
+const getIdUser = async(req) => {
+    var token = req.body.token || req.query.token || req.headers['genericflix_token'];
+    const iduser = await auth.decodeToken(token);
+    return(iduser.id);
+}
+
+const getSeries = async(req, res) => {
+    var data = await getIdUser(req);
+
     const {page = 1} = req.query;
-    const series = await Series.paginate({}, {page, limit:6, sort: 'title'});
+    const series = await Series.paginate({userId: data}, {page, limit:6, sort: 'title'});    
     return res.json(series);
 }
 
 const getSerie = async(req, res) => {
-    //test = Series.title;
-    const serie = await Series.findById(req.params.id);
-    return res.json(serie);
+    var data = await getIdUser(req);
+    if(mongoose.Types.ObjectId.isValid(req.params.id)){
+        const serie = await Series.find({_id: req.params.id, userId: data});
+        return res.json(serie);
+    } else {
+        return res.status(404).send('Page not Found');
+    }
 }
 
-const getSeriesByStatus = async(req, res, next) => {
+const getSeriesByStatus = async(req, res) => {
+    var data = await getIdUser(req);
     const {page = 1} = req.query;
-    const series = await Series.paginate({status: req.params.status}, {sort: 'title'},{page, limit:5});
-    return res.json(series);
+
+    if(req.params.status >= 0 && req.params.status <=2){
+        const series = await Series.paginate({status: req.params.status, userId: data}, {page, limit:6, sort: 'title'});
+        return res.json(series);
+    } else {
+        return res.status(404).send('Not found');
+    }
 }
 
-const getSeriesBySubstring = async(req, res, next) => {
+const getSeriesBySubstring = async(req, res) => {
+    var data = await getIdUser(req);
+    
     const searchText = req.params.title;
-    const series = await Series.paginate({ "title": { "$regex": searchText, "$options": "i" } }, function(err,docs) {})
-    return res.json(series);
+    const series = await Series.paginate({ "title": { "$regex": searchText, "$options": "i" }, userId: data }, function(err,docs) {})
+    if(series.total > 0){
+        return res.json(series);
+    } else
+        return res.status(404).send('Not found');
 }
 
-const post = async(req, res, next) => {
-    const serie = await Series.create(req.body);
-    return res.json(serie);
+const post = async(req, res) => {
+    var data = await getIdUser(req);
+    const objSerie = req.body;
+    objSerie['userId'] = data;
+
+    Series.create(objSerie, function(err, serie){
+        if(err)
+            return res.status(400).send();
+        else
+            return res.json(serie);
+    });
 }
 
-const update = async(req, res, next) => {
-    const serie = await Series.findByIdAndUpdate(req.params.id, req.body, {new: true});
-    return res.json(serie);
+const update = async(req, res) => {
+    var data = await getIdUser(req);
+
+    if(mongoose.Types.ObjectId.isValid(req.params.id)){
+        Series.findOneAndUpdate({_id: req.params.id, userId: data}, req.body, function(err, serie){
+            if(err)
+                return res.status(400).send('Not found');
+            else
+                return res.json(serie);
+        });
+    } else {
+        return res.status(400).send('Not found');
+    }
 }
 
-const destroy = async(req, res, next) => {
-    await Series.findByIdAndRemove(req.params.id);
-    return res.send();
+const destroy = async(req, res) => {
+    var data = await getIdUser(req);
+
+    if(mongoose.Types.ObjectId.isValid(req.params.id)){
+        await Series.findOneAndRemove({_id: req.params.id, userId: data}, function(err){
+                if(err)
+                    return res.status(400).send('Not found');
+                else
+                    return res.send();
+            });
+        return res.send();
+    }
+    else{
+        return res.status(400).send();
+    }
 }
 
 module.exports = {

@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
+const Schema = mongoose.Schema
 
-const SeriesSchema = new mongoose.Schema({
+
+const SeriesSchema = new Schema({
     title: {
         type: String,
         required: true,
@@ -31,6 +33,9 @@ const SeriesSchema = new mongoose.Schema({
     },
     image: {
         type: Buffer
+    }, 
+    userId: {
+        type: String
     }
 });
 
