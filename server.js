@@ -24,6 +24,6 @@ const serieRoute = require('./src/routes');
 app.use('/', serieRoute);
 app.use('/user', userRoute);
 
-app.listen(3001);
+app.listen(3021); // tava 3001
   
 module.exports = app;

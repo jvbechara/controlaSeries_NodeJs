@@ -7,9 +7,9 @@ const post = async(req, res) => {
         if(err)
             return res.status(400).send();
         else
-            return res.json(cliente);
+            return res.status(200).json(cliente);
     });
-    res.status(200).send({message: 'Cliente cadastrado com sucesso!'});    
+    //res.status(200).send({message: 'Cliente cadastrado com sucesso!'});    
 }
 
 const authenticate = async(req, res) => {
@@ -20,6 +20,7 @@ const authenticate = async(req, res) => {
 
         if(!user){
             res.status(404).send('Email ou senha inválidos');
+            return
         }
         
         console.log(user._id);
