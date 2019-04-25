@@ -19,7 +19,7 @@ const getSeries = async(req, res) => {
 const getSerie = async(req, res) => {
     var data = await getIdUser(req);
     if(mongoose.Types.ObjectId.isValid(req.params.id)){
-        const serie = await Series.find({_id: req.params.id, userId: data});
+        const serie = await Series.findOne({_id: req.params.id, userId: data});
         return res.json(serie);
     } else {
         return res.status(404).send('Page not Found');
