@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const config = require('./src/config');
+require('dotenv').config();
 
 // Inicia o App
 const app = express();
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 // Inicia o DB
-mongoose.connect('mongodb://jvbechara:crvg1995@ds018258.mlab.com:18258/controlaseries', {useNewUrlParser: true});
+mongoose.connect(process.env.connection_genericflix, {useNewUrlParser: true});
 
 require('./src/models/series');
 require('./src/models/users');

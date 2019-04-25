@@ -1,15 +1,18 @@
 const mongoose = require('mongoose');
 const Users = mongoose.model('Users');
 const auth = require('../services/auth');
+const md5 = require('md5');
 
 const post = async(req, res) => {
-    await Users.create(req.body, function(err, cliente){
+    await Users.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: md5(req.body.password + global.SALT_KEY) }, function(err, cliente){
         if(err)
             return res.status(400).send();
         else
             return res.status(200).json(cliente);
     });
-    //res.status(200).send({message: 'Cliente cadastrado com sucesso!'});    
 }
 
 const authenticate = async(req, res) => {
