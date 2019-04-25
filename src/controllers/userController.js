@@ -7,7 +7,7 @@ const post = async(req, res) => {
     await Users.create({
         name: req.body.name,
         email: req.body.email,
-        password: md5(req.body.password + global.SALT_KEY) }, function(err, cliente){
+        password: md5(req.body.password + process.env.SALT_KEY) }, function(err, cliente){
         if(err)
             return res.status(400).send();
         else

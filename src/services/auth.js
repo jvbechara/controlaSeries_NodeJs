@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
 
 const generateToken = (data) => {
-    return jwt.sign(data, global.SALT_KEY, {expiresIn: '1d'});
+    return jwt.sign(data, process.env.SALT_KEY, {expiresIn: '1d'});
 }
 
 const decodeToken = async(token) => {
-    var data = await jwt.verify(token, global.SALT_KEY);
+    var data = await jwt.verify(token, process.env.SALT_KEY);
     return data;
 }
 
@@ -17,7 +17,7 @@ const isUserValid = async(req, res, next) => {
             message: 'Token Inválido'
         });
     } else {
-        jwt.verify(token, global.SALT_KEY, function(error, decoded){
+        jwt.verify(token, process.env.SALT_KEY, function(error, decoded){
             if(error){
                 res.status(401).send('Token Inválido');
             } else {
