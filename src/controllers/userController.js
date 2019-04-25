@@ -19,7 +19,7 @@ const authenticate = async(req, res) => {
     try{
         const {email, password} = req.body;
 
-        const user = await Users.findOne({email, password});
+        const user = await Users.findOne({email, password: md5(password + process.env.SALT_KEY)});
 
         if(!user){
             res.status(404).send('Email ou senha inválidos');
